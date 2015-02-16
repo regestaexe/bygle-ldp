@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util" xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+	<beans:bean id="jenaDataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+		<beans:property name="driverClassName" value="${jdbc.jenaDb.driverClassName}" />
+		<beans:property name="url" value="${jdbc.jenaDb.url}" />
+		<beans:property name="username" value="${jdbc.jenaDb.username}" />
+		<beans:property name="password" value="${jdbc.jenaDb.password}" />
+		<beans:property name="initialSize" value="5" />
+		<beans:property name="maxTotal" value="10" />
+		<beans:property name="maxIdle" value="5" />
+		<beans:property name="maxWaitMillis" value="3000" />
+	</beans:bean>
+	<beans:bean id="endPointManager" class="org.bygle.endpoint.managing.JenaEndPointManager">
+		<beans:property name="jenaDataSource" ref="jenaDataSource" />
+		<beans:property name="defaultDomain" value="${endpoint.defaultDomain}" />
+		<beans:property name="databaseType" value="${jdbc.jenaDb.dbType}" />
+	</beans:bean>
+	<util:map id="rdfPresentationIncludeMap" value-type="java.util.ArrayList" key-type="java.lang.String" map-class="java.util.HashMap">
+		<beans:entry key="http://www.w3.org/ns/ldp#PreferContainment">
+			<util:list value-type="java.lang.String">
+				<beans:value>/rdf:RDF/*/ldp:insertedContentRelation</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:hasMemberRelation</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:membershipResource</beans:value>
+			</util:list>
+		</beans:entry>
+		<beans:entry key="http://www.w3.org/ns/ldp#PreferMembership">
+			<util:list value-type="java.lang.String">
+				<beans:value>/rdf:RDF/*/ldp:contains</beans:value>
+			</util:list>
+		</beans:entry>
+		<beans:entry key="http://www.w3.org/ns/ldp#PreferMinimalContainer">
+			<util:list value-type="java.lang.String">
+				<beans:value>/rdf:RDF/*/ldp:contains</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:insertedContentRelation</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:hasMemberRelation</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:membershipResource</beans:value>
+			</util:list>
+		</beans:entry>
+		<beans:entry key="http://www.w3.org/ns/ldp#PreferEmptyContainer">
+			<util:list value-type="java.lang.String">
+				<beans:value>/rdf:RDF/*/ldp:contains</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:insertedContentRelation</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:hasMemberRelation</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:membershipResource</beans:value>
+			</util:list>
+		</beans:entry>
+	</util:map>
+	<util:map id="rdfPresentationOmitMap" value-type="java.util.ArrayList" key-type="java.lang.String" map-class="java.util.HashMap">
+		<beans:entry key="http://www.w3.org/ns/ldp#PreferContainment">
+			<util:list value-type="java.lang.String">
+				<beans:value>/rdf:RDF/*/ldp:contains</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:insertedContentRelation</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:hasMemberRelation</beans:value>
+				<beans:value>/rdf:RDF/*/ldp:membershipResource</beans:value>
+			</util:list>
+		</beans:entry>
+		<beans:entry key="http://www.w3.org/ns/ldp#PreferMembership">
+			<util:list value-type="java.lang.String">
+				<beans:value>/rdf:RDF/*/ldp:membershipResource</beans:value>
+			</util:list>
+		</beans:entry>
+		<beans:entry key="http://www.w3.org/ns/ldp#PreferMinimalContainer">
+			<util:list value-type="java.lang.String"></util:list>
+		</beans:entry>
+		<beans:entry key="http://www.w3.org/ns/ldp#PreferEmptyContainer">
+			<util:list value-type="java.lang.String"></util:list>
+		</beans:entry>
+	</util:map>
+	<util:map id="defaultNamespaces" value-type="java.lang.String" key-type="java.lang.String" map-class="java.util.HashMap">
+		<beans:entry key="dc" value="http://purl.org/dc/elements/1.1/" />
+		<beans:entry key="dcterms" value="http://purl.org/dc/terms/" />
+		<beans:entry key="foaf" value="http://xmlns.com/foaf/0.1/" />
+		<beans:entry key="gn" value="http://www.geonames.org/ontology#" />
+		<beans:entry key="skos" value="http://www.w3.org/2004/02/skos/core#" />
+		<beans:entry key="xsi" value="http://www.w3.org/2001/XMLSchema-instance" />
+		<beans:entry key="bygle" value="http://www.bygle.net/bygle#" />
+	</util:map>
+	<util:list id="readOnlyProperties" value-type="java.lang.String" list-class="java.util.ArrayList">
+		<beans:value>http://purl.org/dc/terms/format</beans:value>
+	</util:list>
+	<util:list id="invalidProperties" value-type="java.lang.String" list-class="java.util.ArrayList">
+		<beans:value>http://example.com/ns#comment</beans:value>
+	</util:list>
+	<!-- <beans:bean id="endPointManager" class="org.bygle.endpoint.managing.VirtuosoEndPointManager"/> -->
+	<beans:bean id="endPointManagerProvider" class="org.bygle.endpoint.managing.EndPointManagerProvider">
+		<beans:property name="endPointManager" ref="endPointManager" />
+	</beans:bean>
+	<beans:bean id="endpointImporter" class="org.bygle.scheduler.EndpointImporter">
+		<beans:property name="endPointManagerProvider" ref="endPointManagerProvider" />
+	</beans:bean>
+	<beans:bean id="endpointPublisher" class="org.bygle.scheduler.EndpointPublisher">
+		<beans:property name="endPointManagerProvider" ref="endPointManagerProvider" />
+	</beans:bean>
+	<beans:bean id="endpointImportJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<beans:property name="targetObject" ref="endpointImporter" />
+		<beans:property name="targetMethod" value="executeImport" />
+	</beans:bean>
+	<beans:bean id="endpointPublishJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<beans:property name="targetObject" ref="endpointPublisher" />
+		<beans:property name="targetMethod" value="executePublishing" />
+	</beans:bean>
+	<!-- IMPORT SCHEDULER: watch /src/main/resources/import-files folder and import any file stored in it -->
+	<beans:bean id="importTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="endpointImportJob" />
+		<beans:property name="startDelay" value="1000" /> <!-- milliseconds -->
+		<beans:property name="repeatInterval" value="200000" /><!-- milliseconds -->
+	</beans:bean>
+	
+	<!-- PUBLISH SCHEDULER: watch /src/main/resources/publish-files folder and publish directly any file stored in it -->
+	<beans:bean id="publishTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="endpointPublishJob" />
+		<beans:property name="startDelay" value="1000" /><!-- milliseconds -->
+		<beans:property name="repeatInterval" value="200000" /><!-- milliseconds -->
+	</beans:bean>
+	
+	<!-- IMPORT SCHEDULER: watch /src/main/resources/import-files folder and import any file stored in it -->
+	<!-- <beans:bean id="importTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"> <beans:property name="jobDetail" ref="endpointImportJob" /> <beans:property name="cronExpression" value="0 34 14 * * ?" /> </beans:bean> -->
+	
+	<!-- PUBLISH SCHEDULER: watch /src/main/resources/publish-files folder and publish directly any file stored in it -->
+	<!-- <beans:bean id="publishTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"> <beans:property name="jobDetail" ref="endpointPublishJob" /> <beans:property name="cronExpression" value="0 0 18 * * ?" /> </beans:bean> -->
+	
+	<!-- Scheduler factory bean to glue together jobDetails and triggers to Configure Quartz Scheduler -->
+	<beans:bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<beans:property name="jobDetails">
+			<beans:list>
+				<beans:ref bean="endpointImportJob" />
+				<beans:ref bean="endpointPublishJob" />
+			</beans:list>
+		</beans:property>
+		<beans:property name="triggers">
+			<beans:list>
+				<beans:ref bean="importTrigger" />
+				<beans:ref bean="publishTrigger" />
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+</beans:beans>
