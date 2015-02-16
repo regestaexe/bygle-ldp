@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util" xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+
+	<beans:bean id="endPointManager" class="org.bygle.endpoint.managing.VirtuosoEndPointManager" init-method="createConnection" destroy-method="closeConnection">
+		<beans:property name="server" value="${jdbc.virtuoso.server}"/>
+		<beans:property name="port" value="${jdbc.virtuoso.port}"/>
+		<beans:property name="username" value="${jdbc.virtuoso.username}" />
+		<beans:property name="password" value="${jdbc.virtuoso.password}" />
+		<beans:property name="defaultGraph" value="${jdbc.virtuoso.defaultGraph}" />
+	</beans:bean>
+
+	<!-- unsing jena 
 	<beans:bean id="jenaDataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
 		<beans:property name="driverClassName" value="${jdbc.jenaDb.driverClassName}" />
 		<beans:property name="url" value="${jdbc.jenaDb.url}" />
@@ -10,12 +21,15 @@
 		<beans:property name="maxTotal" value="10" />
 		<beans:property name="maxIdle" value="5" />
 		<beans:property name="maxWaitMillis" value="3000" />
-	</beans:bean>
+	</beans:bean>-->
+	
+	<!--   unsing jena 
 	<beans:bean id="endPointManager" class="org.bygle.endpoint.managing.JenaEndPointManager">
 		<beans:property name="jenaDataSource" ref="jenaDataSource" />
 		<beans:property name="defaultDomain" value="${endpoint.defaultDomain}" />
 		<beans:property name="databaseType" value="${jdbc.jenaDb.dbType}" />
 	</beans:bean>
+	 -->
 	<util:map id="rdfPresentationIncludeMap" value-type="java.util.ArrayList" key-type="java.lang.String" map-class="java.util.HashMap">
 		<beans:entry key="http://www.w3.org/ns/ldp#PreferContainment">
 			<util:list value-type="java.lang.String">
@@ -82,7 +96,6 @@
 	<util:list id="invalidProperties" value-type="java.lang.String" list-class="java.util.ArrayList">
 		<beans:value>http://example.com/ns#comment</beans:value>
 	</util:list>
-	<!-- <beans:bean id="endPointManager" class="org.bygle.endpoint.managing.VirtuosoEndPointManager"/> -->
 	<beans:bean id="endPointManagerProvider" class="org.bygle.endpoint.managing.EndPointManagerProvider">
 		<beans:property name="endPointManager" ref="endPointManager" />
 	</beans:bean>
