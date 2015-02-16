@@ -21,9 +21,9 @@
 		    	sparql +='PREFIX  :       <.>\n';
 		    	sparql +='\n';
 		    	sparql +='SELECT *\n';
-		    	sparql +='{\n';
+		    	sparql +='\n';
 		    	sparql +='    { ?s ?p ?o }\n';
-		    	sparql +='}\n';
+		    	sparql +='\n';
 		    	sparql +='LIMIT 100\n';
 	    	$("#sparqlQuery").elastic();
 	    	$("#sparqlQuery").val(sparql);
