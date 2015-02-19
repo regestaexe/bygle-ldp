@@ -28,6 +28,8 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.openrdf.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoUpdateFactory;
@@ -53,6 +55,7 @@ public class VirtuosoEndPointManager extends EndPointManager {
 
 	@Autowired
 	BygleService bygleService;
+
 	private int port = 1111;
 	private String username, password, defaultGraph, server;
 
@@ -197,6 +200,13 @@ public class VirtuosoEndPointManager extends EndPointManager {
 	@Override
 	public void executeImport() throws Exception {
 		super.executeImport();
+		// WebApplicationContext springContext =
+		// WebApplicationContextUtils.getWebApplicationContext(servletConext);
+		// ldpService = (LDPService) springContext.getBean("ldpService");
+		// bygleService = (BygleService) springContext.getBean("bygleService");
+		// relationsService = (RelationsService)
+		// springContext.getBean("relationsService");
+
 		File importDir = new File(importDirectory);
 		if (importDir.list().length > 0) {
 			List<RelationsContainer> addRelationsContainerList = new ArrayList<RelationsContainer>();
@@ -211,7 +221,8 @@ public class VirtuosoEndPointManager extends EndPointManager {
 						System.out.println("loading RDF " + importFiles[i].getAbsolutePath());
 						FileManager.get().readModel(modelBase, importFiles[i].getAbsolutePath());
 					} catch (Exception e) {
-						e.printStackTrace();
+						// e.printStackTrace();
+						System.err.println("[bygle - error] importing " + e.getMessage());
 						FileUtils.moveFile(importFiles[i], new File(importFiles[i].getAbsolutePath().replaceAll("(.+)\\.(\\w+)$", "$1_error.$2")));
 						FileUtils.writeStringToFile(new File(importFiles[i].getAbsolutePath().replaceAll("(.+)\\.(\\w+)$", "$1_error.$2.log")), e.getMessage());
 					}
@@ -229,7 +240,8 @@ public class VirtuosoEndPointManager extends EndPointManager {
 						modelResource.add(statementList);
 						addAnon(modelBase, modelResource, statementList);
 						ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-						modelResource.write(byteArrayOutputStream, BygleSystemUtils.getWriter("application/rdf+xml-abbr")); //diego: RDF/XML-ABBREV
+						modelResource.write(byteArrayOutputStream, BygleSystemUtils.getWriter("application/rdf+xml-abbr")); // diego:
+																															// RDF/XML-ABBREV
 						XMLReader xmlReader = new XMLReader(byteArrayOutputStream.toByteArray());
 						String rdfAbout = xmlReader.getNodeValue("/rdf:RDF/*/@rdf:about");
 						System.out.println("VirtuosoEndPointManager.executeImport() importing " + rdfAbout);

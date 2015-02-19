@@ -38,6 +38,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntModel;
@@ -73,7 +75,7 @@ public class JenaEndPointManager extends EndPointManager {
 
 	@Autowired
 	LDPService ldpService;
-	
+
 	@Autowired
 	BygleService bygleService;
 
@@ -375,23 +377,28 @@ public class JenaEndPointManager extends EndPointManager {
 	@Override
 	public void executeImport() throws Exception {
 		super.executeImport();
+//		WebApplicationContext springContext = WebApplicationContextUtils.getWebApplicationContext(servletConext);
+//		relationsService = (RelationsService) springContext.getBean("relationsService");
+//		ldpService = (LDPService) springContext.getBean("ldpService");
+//		bygleService = (BygleService) springContext.getBean("bygleService");
+
 		File importDir = new File(importDirectory);
 		if (importDir.list().length > 0) {
 			List<RelationsContainer> addRelationsContainerList = new ArrayList<RelationsContainer>();
 			List<RelationsContainer> updateRelationsContainerList = new ArrayList<RelationsContainer>();
 			File[] importFiles = importDir.listFiles();
 			Model modelBase = ModelFactory.createDefaultModel();
-			//ldpService.addDefaultNamespaces(modelBase);
+			// ldpService.addDefaultNamespaces(modelBase);
 			for (int i = 0; i < importFiles.length; i++) {
 				if (importFiles[i].isFile()) {
 					try {
-						System.out.println("loading RDF "+ importFiles[i].getAbsolutePath() );
+						System.out.println("loading RDF " + importFiles[i].getAbsolutePath());
 						FileManager.get().readModel(modelBase, importFiles[i].getAbsolutePath());
 					} catch (Exception e) {
-						new File(importDir.getAbsolutePath()+"/errors").mkdirs();
-						FileUtils.moveFile(importFiles[i], new File(importFiles[i].getAbsolutePath().replaceAll("(.+)\\.(\\w+)$", "/errors/$1_error.$2")));
-						FileUtils.writeStringToFile(new File(importFiles[i].getAbsolutePath().replaceAll("(.+)\\.(\\w+)$", "/errors/$1_error.$2.log")), e.getMessage());
-						throw e;
+						// e.printStackTrace();
+						System.err.println("[bygle - error] importing " + e.getMessage());
+						FileUtils.moveFile(importFiles[i], new File(importFiles[i].getAbsolutePath().replaceAll("(.+)\\.(\\w+)$", "$1_error.$2")));
+						FileUtils.writeStringToFile(new File(importFiles[i].getAbsolutePath().replaceAll("(.+)\\.(\\w+)$", "$1_error.$2.log")), e.getMessage());
 					}
 				}
 			}
@@ -410,9 +417,9 @@ public class JenaEndPointManager extends EndPointManager {
 						XMLReader xmlReader = new XMLReader(byteArrayOutputStream.toByteArray());
 						String rdfAbout = xmlReader.getNodeValue("/rdf:RDF/*/@rdf:about");
 						List<?> nodeList = xmlReader.getNodeList("/rdf:RDF/*/*/@rdf:resource[not(ancestor::rdf:type)]");
-						Content content = ldpService.createContent(byteArrayOutputStream.toByteArray(), "application/rdf+xml", "application/rdf+xml", BygleSystemUtils.getStringProperty("endpoint.defaultDomain"),rdfAbout,null,null,true);
+						Content content = ldpService.createContent(byteArrayOutputStream.toByteArray(), "application/rdf+xml", "application/rdf+xml", BygleSystemUtils.getStringProperty("endpoint.defaultDomain"), rdfAbout, null, null, true);
 						RecordTypes recordTypes = (RecordTypes) bygleService.getObject(RecordTypes.class, content.getResourceType());
-						RdfClasses rdfClasses = getRdfClasses(content.getENTITY_TYPE(),rdfAbout);
+						RdfClasses rdfClasses = getRdfClasses(content.getENTITY_TYPE(), rdfAbout);
 						String md5ETag = DigestUtils.md5Hex(new String(byteArrayOutputStream.toByteArray()));
 						DetachedCriteria detachedCriteria = DetachedCriteria.forClass(Records.class);
 						detachedCriteria.add(Restrictions.eq("rdfAbout", rdfAbout));
@@ -450,25 +457,25 @@ public class JenaEndPointManager extends EndPointManager {
 
 	}
 
-	public synchronized RdfClasses getRdfClasses(Resource ENTITY_TYPE,String about) throws UnsupportedEncodingException, URISyntaxException{
+	public synchronized RdfClasses getRdfClasses(Resource ENTITY_TYPE, String about) throws UnsupportedEncodingException, URISyntaxException {
 		RdfClasses rdfClasses = null;
-		if (ENTITY_TYPE!=null) {
+		if (ENTITY_TYPE != null) {
 			DetachedCriteria detachedCriteria = DetachedCriteria.forClass(RdfClasses.class);
-			detachedCriteria.add(Restrictions.eq("rdfType",ENTITY_TYPE.toString()));
+			detachedCriteria.add(Restrictions.eq("rdfType", ENTITY_TYPE.toString()));
 			List<?> list = bygleService.getList(detachedCriteria);
 			if (list.size() == 0) {
 				try {
 					java.net.URI className = new java.net.URI(URLEncoder.encode(ENTITY_TYPE.getModel().qnameFor(ENTITY_TYPE.getURI()), BygleSystemUtils.getStringProperty("default.encoding")));
-					rdfClasses = new RdfClasses(className.toString(),ENTITY_TYPE.getURI(), 1);
+					rdfClasses = new RdfClasses(className.toString(), ENTITY_TYPE.getURI(), 1);
 				} catch (Exception e) {
-					rdfClasses = new RdfClasses("defaultResource",ENTITY_TYPE.getURI(), 1);
+					rdfClasses = new RdfClasses("defaultResource", ENTITY_TYPE.getURI(), 1);
 				}
 				bygleService.add(rdfClasses);
 				return rdfClasses;
-			}else{
-				
+			} else {
+
 				rdfClasses = (RdfClasses) list.get(0);
-				if(about.indexOf(ENTITY_TYPE.toString())==-1){
+				if (about.indexOf(ENTITY_TYPE.toString()) == -1) {
 					rdfClasses.setCount(rdfClasses.getCount() + 1);
 					bygleService.update(rdfClasses);
 				}
@@ -476,7 +483,7 @@ public class JenaEndPointManager extends EndPointManager {
 		}
 		return rdfClasses;
 	}
-	
+
 	public String buildRDF(String xmlBase, List<Namespace> list, String rdf) {
 		String result = "<rdf:RDF ";
 		for (int i = 0; i < list.size(); i++) {
@@ -547,7 +554,7 @@ public class JenaEndPointManager extends EndPointManager {
 	public void resetEndpoint() throws Exception {
 		Connection connection = null;
 		java.sql.Statement statement = null;
-		try{
+		try {
 			connection = jenaDataSource.getConnection();
 			statement = connection.createStatement();
 			statement.executeUpdate("TRUNCATE nodes;");
@@ -555,16 +562,16 @@ public class JenaEndPointManager extends EndPointManager {
 			statement.executeUpdate("TRUNCATE quads;");
 			statement.executeUpdate("TRUNCATE triples;");
 			statement.close();
-		   }catch(SQLException se){
-		   }catch(Exception e){
-		   }finally{
-		      try{
-		         if(connection!=null && !connection.isClosed())
-		        	 connection.close();
-		      }catch(SQLException se){
-		         se.printStackTrace();
-		      }
-		   }
+		} catch (SQLException se) {
+		} catch (Exception e) {
+		} finally {
+			try {
+				if (connection != null && !connection.isClosed())
+					connection.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
 	}
 
 	@Override
