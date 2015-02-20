@@ -232,7 +232,7 @@ public class LDPService {
 
 		host = host.replaceAll("/$", "") + "/";
 		host = host.startsWith("http://") ? host : "http://" + host;
-
+		System.out.println("[bygle info] adding: "+host+" - "+about+" - slug: "+slug);
 		Content contentToInsert = getContent(content, rdfAbout, contentType, BygleSystemUtils.INPUTFORMAT_APPLICATION_RDF_XML, host, link, slug);
 		try {
 			List<?> recordsList = bygleService.getList(getCriteria(Records.class, Restrictions.eq("rdfAbout", contentToInsert.getRdfAbout()), Restrictions.eq("host", host)));
@@ -413,7 +413,8 @@ public class LDPService {
 				host = headerHost;
 			host = host.replaceAll("/$", "") + "/";
 			host = host.startsWith("http://") ? host : "http://" + host;
-			//Content contentToUpdate = getContent(content, about, contentType, BygleSystemUtils.INPUTFORMAT_APPLICATION_RDF_XML, host);
+			// Content contentToUpdate = getContent(content, about, contentType,
+			// BygleSystemUtils.INPUTFORMAT_APPLICATION_RDF_XML, host);
 			Content contentToUpdate = getContent(content, rdfAbout, contentType, BygleSystemUtils.INPUTFORMAT_APPLICATION_RDF_XML, host, link, slug);
 			try {
 				String invalidRelation = relationsService.testLDPRelations(contentToUpdate.getContent());
@@ -677,6 +678,7 @@ public class LDPService {
 			host = headerHost;
 		host = host.replaceAll("/$", "") + "/";
 		host = host.startsWith("http://") ? host : "http://" + host;
+		System.out.println("[bygle info] deleting " + host + " - " + rdfAbout);
 		List<?> recordsList = bygleService.getList(getCriteria(Records.class, Restrictions.or(Restrictions.eq("rdfAbout", rdfAbout), Restrictions.eq("rdfAbout", about)), Restrictions.eq("host", host)));
 		if (recordsList.size() > 0) {
 			Records records = (Records) recordsList.get(0);
