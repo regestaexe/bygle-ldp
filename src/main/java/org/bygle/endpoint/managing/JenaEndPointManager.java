@@ -88,8 +88,8 @@ public class JenaEndPointManager extends EndPointManager {
 	}
 
 	@Override
-	public void publishRecord(byte[] rdf, String rdfAbout) throws Exception {
-		super.publishRecord(rdf, rdfAbout);
+	public void publishRecord(byte[] rdf, String rdfAbout, String host) throws Exception {
+		super.publishRecord(rdf, rdfAbout, host);
 		SDBConnection conn = new SDBConnection(jenaDataSource);
 		StoreDesc storeDesc = new StoreDesc(LayoutType.LayoutTripleNodesHash, BygleSystemUtils.getDBType(databaseType));
 		Store store = SDBFactory.connectStore(conn, storeDesc);
@@ -104,8 +104,8 @@ public class JenaEndPointManager extends EndPointManager {
 	}
 
 	@Override
-	public void dePublishRecord(byte[] rdf, String rdfAbout) throws Exception {
-		super.dePublishRecord(rdf, rdfAbout);
+	public void dePublishRecord(byte[] rdf, String rdfAbout, String host) throws Exception {
+		super.dePublishRecord(rdf, rdfAbout, host);
 		SDBConnection conn = new SDBConnection(jenaDataSource);
 		StoreDesc storeDesc = new StoreDesc(LayoutType.LayoutTripleNodesHash, BygleSystemUtils.getDBType(databaseType));
 		Store store = SDBFactory.connectStore(conn, storeDesc);
@@ -115,24 +115,24 @@ public class JenaEndPointManager extends EndPointManager {
 
 		StringBuilder query = new StringBuilder();
 		query.append("DELETE  {?bn ?a ?b}   WHERE {");
-		query.append("{<" + defaultDomain + "/" + rdfAbout + "> ?p ?o");
+		query.append("{<" + host + "/" + rdfAbout + "> ?p ?o");
 		query.append(". FILTER(isBlank(?o))");
 		query.append(". ?o ?c ?s");
 		query.append(". FILTER(isBlank(?s))");
 		query.append(". ?s ?d ?bn");
 		query.append(". FILTER(isBlank(?bn))}");
 		query.append("UNION{");
-		query.append("<" + defaultDomain + "/" + rdfAbout + "> ?p ?o");
+		query.append("<" + host + "/" + rdfAbout + "> ?p ?o");
 		query.append(". FILTER(isBlank(?o))");
 		query.append(". ?o ?c ?bn");
 		query.append(". FILTER(isBlank(?bn))}");
 		query.append("UNION{");
-		query.append(" <" + defaultDomain + "/" + rdfAbout + "> ?p ?bn");
+		query.append(" <" + host + "/" + rdfAbout + "> ?p ?bn");
 		query.append(". FILTER(isBlank(?bn))");
 		query.append("} ?bn ?a ?b}");
 
 		UpdateAction.parseExecute(query.toString(), modelTpl);
-		modelTpl.removeAll(modelTpl.createResource(defaultDomain + "/" + rdfAbout), null, null);
+		modelTpl.removeAll(modelTpl.createResource(host + "/" + rdfAbout), null, null);
 		dataset.getDefaultModel().remove(modelTpl);
 		store.getConnection().close();
 		store.close();
@@ -357,10 +357,10 @@ public class JenaEndPointManager extends EndPointManager {
 	}
 
 	@Override
-	public void rePublishRecord(byte[] rdf, String rdfAbout) throws Exception {
-		super.rePublishRecord(rdf, rdfAbout);
-		dePublishRecord(rdf, rdfAbout);
-		publishRecord(rdf, rdfAbout);
+	public void rePublishRecord(byte[] rdf, String rdfAbout, String host) throws Exception {
+		super.rePublishRecord(rdf, rdfAbout, host);
+		dePublishRecord(rdf, rdfAbout, host);
+		publishRecord(rdf, rdfAbout, host);
 	}
 
 	private void addAnon(Model modelBase, Model modelResource, List<Statement> statementList) {
@@ -377,10 +377,12 @@ public class JenaEndPointManager extends EndPointManager {
 	@Override
 	public void executeImport() throws Exception {
 		super.executeImport();
-//		WebApplicationContext springContext = WebApplicationContextUtils.getWebApplicationContext(servletConext);
-//		relationsService = (RelationsService) springContext.getBean("relationsService");
-//		ldpService = (LDPService) springContext.getBean("ldpService");
-//		bygleService = (BygleService) springContext.getBean("bygleService");
+		// WebApplicationContext springContext =
+		// WebApplicationContextUtils.getWebApplicationContext(servletConext);
+		// relationsService = (RelationsService)
+		// springContext.getBean("relationsService");
+		// ldpService = (LDPService) springContext.getBean("ldpService");
+		// bygleService = (BygleService) springContext.getBean("bygleService");
 
 		File importDir = new File(importDirectory);
 		if (importDir.list().length > 0) {

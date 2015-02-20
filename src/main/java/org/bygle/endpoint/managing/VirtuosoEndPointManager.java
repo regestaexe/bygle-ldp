@@ -80,7 +80,7 @@ public class VirtuosoEndPointManager extends EndPointManager {
 	}
 
 	@Override
-	public void publishRecord(byte[] rdf, String rdfAbout) throws Exception {
+	public void publishRecord(byte[] rdf, String rdfAbout,String host) throws Exception {
 		System.out.println("VirtuosoEndPointManager.publishRecord()");
 		if (!endpointsMap.containsKey(server + "+" + defaultGraph)) {
 			System.out.println("connecting to  " + server + " for graph " + defaultGraph);
@@ -136,7 +136,7 @@ public class VirtuosoEndPointManager extends EndPointManager {
 	}
 
 	@Override
-	public void dePublishRecord(byte[] rdf, String rdfAbout) {
+	public void dePublishRecord(byte[] rdf, String rdfAbout, String host) {
 		System.out.println("VirtuosoEndPointManager.dePublishRecord()");
 		System.out.println("removing " + rdfAbout);
 		if (!endpointsMap.containsKey(server + "+" + defaultGraph)) {
@@ -144,38 +144,39 @@ public class VirtuosoEndPointManager extends EndPointManager {
 			endpointsMap.put(server + "+" + defaultGraph, new VirtGraph(defaultGraph, "jdbc:virtuoso://" + server + ":" + port, username, password));
 			System.out.println("connected!");
 		}
-		VirtGraph virtGraph = endpointsMap.get(server + "+" + defaultDomain);
+		VirtGraph virtGraph = endpointsMap.get(server + "+" + defaultGraph);
 
 		System.out.println("dePublishRecord from " + virtGraph.getGraphName() + " -- URI -- " + rdfAbout);
 		StringBuilder query = new StringBuilder();
 		query.append(" DELETE FROM GRAPH <" + virtGraph.getGraphName() + "> {?bn ?a ?b}  WHERE {");
-		query.append("{<" + defaultDomain + rdfAbout + "> ?p ?o");
+		query.append("{<" + host + rdfAbout + "> ?p ?o");
 		query.append(". FILTER(isBlank(?o))");
 		query.append(". ?o ?c ?s");
 		query.append(". FILTER(isBlank(?s))");
 		query.append(". ?s ?d ?bn");
 		query.append(". FILTER(isBlank(?bn))}");
 		query.append("UNION{");
-		query.append("<" + defaultDomain + rdfAbout + "> ?p ?o");
+		query.append("<" + host + rdfAbout + "> ?p ?o");
 		query.append(". FILTER(isBlank(?o))");
 		query.append(". ?o ?c ?bn");
 		query.append(". FILTER(isBlank(?bn))}");
 		query.append("UNION{");
-		query.append(" <" + defaultDomain + rdfAbout + "> ?p ?bn");
+		query.append(" <" + host + rdfAbout + "> ?p ?bn");
 		query.append(". FILTER(isBlank(?bn))");
 		query.append("} ?bn ?a ?b}");
 		VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(query.toString(), virtGraph);
 		vur.exec();
-		vur = VirtuosoUpdateFactory.create("delete from graph <" + virtGraph.getGraphName() + "> {?s ?p ?o.} FROM <" + virtGraph.getGraphName() + "> WHERE {?s ?p ?o. FILTER(?s = <" + defaultDomain + rdfAbout + ">)}", virtGraph);
+		String deleteRequest = "delete from graph <" + virtGraph.getGraphName() + "> {?s ?p ?o.} FROM <" + virtGraph.getGraphName() + "> WHERE {?s ?p ?o. FILTER(?s = <" + (rdfAbout.startsWith("http://") ? rdfAbout : host + rdfAbout) + ">)}";
+		System.out.println("[bygle - info] deleteing " + deleteRequest);
+		vur = VirtuosoUpdateFactory.create(deleteRequest, virtGraph);
 		vur.exec();
-
 	}
 
 	@Override
-	public void rePublishRecord(byte[] rdf, String rdfAbout) throws Exception {
+	public void rePublishRecord(byte[] rdf, String rdfAbout,String host) throws Exception {
 		System.out.println("VirtuosoEndPointManager.rePublishRecord()");
-		dePublishRecord(rdf, rdfAbout);
-		publishRecord(rdf, rdfAbout);
+		dePublishRecord(rdf, rdfAbout, host);
+		publishRecord(rdf, rdfAbout, host);
 	}
 
 	@Override
