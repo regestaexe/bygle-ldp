@@ -1140,11 +1140,19 @@ public class LDPService {
 		try {
 			defaultDomain = BygleSystemUtils.getStringProperty("endpoint.defaultDomain");
 			defaultEncoding = BygleSystemUtils.getStringProperty("default.encoding");
-			createContainer("/basic", "Basic Container", LDPVoc.BasicContainer);
-			createContainer("/direct", "Direct Container", LDPVoc.DirectContainer);
-			createContainer("/indirect", "Indirect Container", LDPVoc.IndirectContainer);
-			// createContainer(BygleSystemUtils.getStringProperty("endpoint.defaultBasicContainerAbout"),BygleSystemUtils.getStringProperty("endpoint.defaultBasicContainerDescription"),LDPVoc.BasicContainer);
-			// createContainer(BygleSystemUtils.getStringProperty("endpoint.defaultBasicContainerAbout")+"/container",BygleSystemUtils.getStringProperty("endpoint.defaultBasicContainerDescription"),LDPVoc.BasicContainer);
+
+			// createContainer(
+			// BygleSystemUtils.getStringProperty("endpoint.defaultDomain")+"/basic",
+			// "Basic Container", LDPVoc.BasicContainer);
+			// createContainer("/direct", "Direct Container",
+			// LDPVoc.DirectContainer);
+			// createContainer("/indirect", "Indirect Container",
+			// LDPVoc.IndirectContainer);
+
+			createContainer(BygleSystemUtils.getStringProperty("endpoint.defaultBasicContainerAbout"), BygleSystemUtils.getStringProperty("endpoint.defaultBasicContainerDescription"), LDPVoc.BasicContainer);
+			createContainer(BygleSystemUtils.getStringProperty("endpoint.defaultDirectContainerAbout"), BygleSystemUtils.getStringProperty("endpoint.defaultDirectContainerDescription"), LDPVoc.DirectContainer);
+			createContainer(BygleSystemUtils.getStringProperty("endpoint.defaultIndirectContainerAbout"), BygleSystemUtils.getStringProperty("endpoint.defaultIndirectContainerDescription"), LDPVoc.IndirectContainer);
+
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
