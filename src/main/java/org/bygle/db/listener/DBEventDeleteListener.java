@@ -27,7 +27,7 @@ public class DBEventDeleteListener implements Serializable,PostDeleteEventListen
 			try {
 				if(records.getRecordTypes().getIdRecordType()!=BygleSystemUtils.RESOURCE_TYPE_BINARY){
 					EndPointManagerInterface endPointManager = endPointManagerProvider.getEndPointManager();
-					endPointManager.dePublishRecord(records.getRdf(),records.getRdfAbout());
+					endPointManager.dePublishRecord(records.getRdf(),records.getRdfAbout(),records.getHost());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -32,7 +32,7 @@ public class DBEventUpdateListener implements Serializable,PostUpdateEventListen
 			try {
 				if(records.getRecordTypes().getIdRecordType()!=BygleSystemUtils.RESOURCE_TYPE_BINARY){
 					EndPointManagerInterface endPointManager = endPointManagerProvider.getEndPointManager();
-					endPointManager.rePublishRecord(records.getRdf(),records.getRdfAbout());
+					endPointManager.rePublishRecord(records.getRdf(),records.getRdfAbout(),records.getHost());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

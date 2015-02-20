@@ -15,96 +15,103 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class LDPController {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LDPController.class);
 	@Autowired
 	LDPService ldpService;
-	
-	@RequestMapping(value = {"", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.GET)
+
+	@RequestMapping(value = { "", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.GET)
 	public ResponseEntity<?> get(HttpServletRequest request) {
-		logger.info("RequestMethod.GET");
+		System.out.println("bygle - info] RequestMethod.GET");
 		try {
 			String about = ldpService.getAbout(request);
-			if(request.getHeader("Accept").indexOf("text/html")!=-1){
-				return ldpService.getResource(about,null);
-			}else{
-				return ldpService.get(about, request.getHeader("Accept"),request.getHeader("Prefer"),request.getHeader("Host"));
+			System.out.println("[bygle - info] " + request.getHeader("Host")+" - "+about);
+			if (request.getHeader("Accept").indexOf("text/html") != -1) {
+				return ldpService.getResource(about, request.getHeader("Host"));
+			} else {
+				return ldpService.get(about, request.getHeader("Accept"), request.getHeader("Prefer"), request.getHeader("Host"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return  new ResponseEntity<String>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	@RequestMapping(value = {"", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.POST)
-	public ResponseEntity<String> post(@RequestBody byte[] data,HttpServletRequest request) {
+
+	@RequestMapping(value = { "", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.POST)
+	public ResponseEntity<String> post(@RequestBody byte[] data, HttpServletRequest request) {
 		try {
-			logger.info("RequestMethod.POST");
+			System.out.println("[bygle - info] RequestMethod.POST");
+			System.out.println("[bygle - info] " + request.getHeader("Host")+" - "+request.getHeader("Slug"));
 			String about = ldpService.getAbout(request);
-			return ldpService.post(data, request.getHeader("Content-Type"),about,request.getHeader("Slug"),request.getHeader("Host"),request.getHeader("Link"),request.getHeader("MD5"));
+			return ldpService.post(data, request.getHeader("Content-Type"), about, request.getHeader("Slug"), request.getHeader("Host"), request.getHeader("Link"), request.getHeader("MD5"));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return  new ResponseEntity<String>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	 
-	@RequestMapping(value = {"", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**"  }, method = RequestMethod.DELETE)
+
+	@RequestMapping(value = { "", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.DELETE)
 	public ResponseEntity<String> delete(HttpServletRequest request) {
 		try {
-			logger.info("RequestMethod.DELETE");
+			System.out.println("[bygle - info] RequestMethod.DELETE");
 			String about = ldpService.getAbout(request);
-			return ldpService.delete(about,request.getHeader("Host"));
+			System.out.println("[bygle - info] " + request.getHeader("Host")+" - "+about);
+			return ldpService.delete(about, request.getHeader("Host"));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return  new ResponseEntity<String>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	 
-	@RequestMapping(value = {"", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.OPTIONS)
+
+	@RequestMapping(value = { "", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.OPTIONS)
 	public ResponseEntity<String> options(HttpServletRequest request) {
 		try {
-			logger.info("RequestMethod.OPTIONS");
+			System.out.println("[bygle - info] RequestMethod.OPTIONS");
 			String about = ldpService.getAbout(request);
-			return ldpService.options(about,request.getHeader("Host"));
+			System.out.println("[bygle - info] " + request.getHeader("Host")+" - "+about);
+			return ldpService.options(about, request.getHeader("Host"));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return  new ResponseEntity<String>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	@RequestMapping(value = {"", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.HEAD)
+
+	@RequestMapping(value = { "", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.HEAD)
 	public ResponseEntity<String> head(HttpServletRequest request) {
 		try {
-			logger.info("RequestMethod.HEAD");
+			System.out.println("[bygle - info] RequestMethod.HEAD");
 			String about = ldpService.getAbout(request);
-			return ldpService.head(about,request.getHeader("Host"));
+			System.out.println("[bygle - info] " + request.getHeader("Host")+" - "+about);
+			return ldpService.head(about, request.getHeader("Host"));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return  new ResponseEntity<String>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	@RequestMapping(value = {"", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.PUT)
-	public ResponseEntity<String> put(@RequestBody String data,HttpServletRequest request) {
+
+	@RequestMapping(value = { "", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.PUT)
+	public ResponseEntity<String> put(@RequestBody String data, HttpServletRequest request) {
 		try {
-			logger.info("RequestMethod.PUT");
+			System.out.println("[bygle - info] RequestMethod.PUT");
 			String about = ldpService.getAbout(request);
-			return ldpService.put(data.getBytes(), request.getHeader("Content-Type"),about,request.getHeader("If-Match"),request.getHeader("Host"),request.getHeader("Slug"),request.getHeader("Link"));
+			System.out.println("[bygle - info] " + request.getHeader("Host")+" - "+about);
+			return ldpService.put(data.getBytes(), request.getHeader("Content-Type"), about, request.getHeader("If-Match"), request.getHeader("Host"), request.getHeader("Slug"), request.getHeader("Link"));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return  new ResponseEntity<String>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	@RequestMapping(value = {"", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.PATCH)
-	public ResponseEntity<String> patch(@RequestBody String data,HttpServletRequest request) {
+
+	@RequestMapping(value = { "", "{path:(?!resources|error|sparql).*$}", "{path:(?!resources|error|sparql).*$}/**" }, method = RequestMethod.PATCH)
+	public ResponseEntity<String> patch(@RequestBody String data, HttpServletRequest request) {
 		try {
-			logger.info("RequestMethod.PATCH");
+			System.out.println("[bygle - info] RequestMethod.PATCH");
 			String about = ldpService.getAbout(request);
-			return ldpService.patch(data.getBytes(), request.getHeader("Content-Type"),about,request.getHeader("If-Match"),request.getHeader("Host"),request.getHeader("Slug"),request.getHeader("Link"));
+			System.out.println("[bygle - info] " + request.getHeader("Host")+" - "+about);
+			return ldpService.patch(data.getBytes(), request.getHeader("Content-Type"), about, request.getHeader("If-Match"), request.getHeader("Host"), request.getHeader("Slug"), request.getHeader("Link"));
 		} catch (Exception e) {
-			return  new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 }
