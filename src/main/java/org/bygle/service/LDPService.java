@@ -413,7 +413,8 @@ public class LDPService {
 				host = headerHost;
 			host = host.replaceAll("/$", "") + "/";
 			host = host.startsWith("http://") ? host : "http://" + host;
-			Content contentToUpdate = getContent(content, about, contentType, BygleSystemUtils.INPUTFORMAT_APPLICATION_RDF_XML, host);
+			//Content contentToUpdate = getContent(content, about, contentType, BygleSystemUtils.INPUTFORMAT_APPLICATION_RDF_XML, host);
+			Content contentToUpdate = getContent(content, rdfAbout, contentType, BygleSystemUtils.INPUTFORMAT_APPLICATION_RDF_XML, host, link, slug);
 			try {
 				String invalidRelation = relationsService.testLDPRelations(contentToUpdate.getContent());
 				if (invalidRelation != null) {
